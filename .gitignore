@@ -1,0 +1,20 @@
+# -----------------------------------
+# Build
+# -----------------------------------
+# ignore build folder
+build/
+
+# ignore .egg-info folder
+*.egg-info/
+
+# ignore __pycache__ folder
+__pycache__/
+
+# -----------------------------------
+# Development
+# -----------------------------------
+# ignore dev folder
+dev/
+
+# ignore *.text
+*.txt

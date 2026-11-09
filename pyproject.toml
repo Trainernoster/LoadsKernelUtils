@@ -1,0 +1,74 @@
+# -----------------------------------
+# Build
+# -----------------------------------
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+
+# -----------------------------------
+# Project information
+# -----------------------------------
+[project]
+name = "LoadsKernelUtils"
+dynamic = ["version"]
+authors = [
+    {name = "author", email = "email@email.com"},
+]
+description = "Utils package with additional software code for the aeroelastic simulation Software LoadsKernel."
+readme = "README.md"
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+
+
+# -----------------------------------
+# Dependencies and Requirements
+# -----------------------------------
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "numpy",
+]
+
+[project.optional-dependencies]
+all = ["LoadsKernelUtils[]"]
+
+
+# -----------------------------------
+# Project References
+# -----------------------------------
+[project.urls]
+Repository  = "https://github.com/user/LoadsKernelUtils"
+
+
+# -----------------------------------
+# Scripts
+# -----------------------------------
+[project.scripts]
+LKU-setup = "lkuscripts.patch_loadskernel:patcher_terminal"
+LoadsKernelUtils = "loadskernelutils.test_loadskernelutils:main"
+
+
+# -----------------------------------
+# Entry point
+# -----------------------------------
+[project.entry-points."spam.magical"]
+tomatoes = "spam:main_tomatoes"
+
+
+# -----------------------------------
+# Source Code
+# -----------------------------------
+[tool.hatch.build.targets.wheel]
+sources = ["src"]
+only-include = ["src"]
+
+
+# -----------------------------------
+# Source Code
+# -----------------------------------
+[tool.hatch.version]
+path = "src/loadskernelutils/__init__.py"
