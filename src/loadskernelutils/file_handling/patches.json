@@ -26,9 +26,6 @@
             "where": "after",
             "shift": "auto"
         },
-
-
-
         {
             "patch_name": "model_creation",
             "patch_type": "add",
@@ -49,9 +46,6 @@
             "anchor": "model = model_modul.Model(self.jcl, self.path_output)",
             "anchor_ids": "all"
         },
-
-
-
         {
             "patch_name": "model_save",
             "patch_type": "add",
@@ -72,9 +66,6 @@
             "anchor": "data_handling.dump_hdf5(self.path_output + 'model_' + self.job_name + '.hdf5', model.__dict__)",
             "anchor_ids": "all"
         },
-
-
-
         {
             "patch_name": "model_load",
             "patch_type": "add",
