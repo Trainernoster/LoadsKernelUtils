@@ -22,12 +22,59 @@
             "patch_file": "./file_handling/add_path_model.py",
             "anchor_type": "line",
             "anchor": "self.jcl.machinefile = self.machinefile",
-            "anchor_ids": [
-                1
-            ],
+            "anchor_ids": "all",
             "where": "after",
             "shift": "auto"
         },
+
+
+
+        {
+            "patch_name": "model_creation",
+            "patch_type": "add",
+            "patch_with_distance": false,
+            "target_file": "./loadskernel/program_flow.py",
+            "patch_file": "./file_handling/model_creation.py",
+            "anchor_type": "line",
+            "anchor": "model = model_modul.Model(self.jcl, self.path_output)",
+            "anchor_ids": "all",
+            "where": "after",
+            "shift": "auto"
+        },
+        {
+            "patch_name": "comment_model_creation",
+            "patch_type": "comment",
+            "target_file": "./loadskernel/program_flow.py",
+            "anchor_type": "line",
+            "anchor": "model = model_modul.Model(self.jcl, self.path_output)",
+            "anchor_ids": "all"
+        },
+
+
+
+        {
+            "patch_name": "model_save",
+            "patch_type": "add",
+            "patch_with_distance": false,
+            "target_file": "./loadskernel/program_flow.py",
+            "patch_file": "./file_handling/model_save.py",
+            "anchor_type": "line",
+            "anchor": "data_handling.dump_hdf5(self.path_output + 'model_' + self.job_name + '.hdf5', model.__dict__)",
+            "anchor_ids": "all",
+            "where": "after",
+            "shift": "auto"
+        },
+        {
+            "patch_name": "comment_model_save",
+            "patch_type": "comment",
+            "target_file": "./loadskernel/program_flow.py",
+            "anchor_type": "line",
+            "anchor": "data_handling.dump_hdf5(self.path_output + 'model_' + self.job_name + '.hdf5', model.__dict__)",
+            "anchor_ids": "all"
+        },
+
+
+
         {
             "patch_name": "model_load",
             "patch_type": "add",

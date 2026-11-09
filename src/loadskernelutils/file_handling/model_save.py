@@ -1,0 +1,1 @@
+data_handling.dump_hdf5(self.path_model + 'model_' + self.job_name + '.hdf5', model.__dict__)
