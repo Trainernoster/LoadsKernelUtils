@@ -1,0 +1,1 @@
+model = data_handling.load_hdf5(self.path_model + 'model_' + self.job_name + '.hdf5')

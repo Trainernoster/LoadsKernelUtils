@@ -1,0 +1,1 @@
+self.path_model = None # path

@@ -1,0 +1,53 @@
+{
+    "patches": [
+        {
+            "patch_name": "introduction_var_path_model",
+            "patch_type": "add",
+            "patch_with_distance": false,
+            "target_file": "./loadskernel/program_flow.py",
+            "patch_file": "./file_handling/add_path_model_init.py",
+            "anchor_type": "line",
+            "anchor": "self.path_output = path_output  # path",
+            "anchor_ids": [
+                1
+            ],
+            "where": "after",
+            "shift": "auto"
+        },
+        {
+            "patch_name": "setup_var_path_model",
+            "patch_type": "add",
+            "patch_with_distance": false,
+            "target_file": "./loadskernel/program_flow.py",
+            "patch_file": "./file_handling/add_path_model.py",
+            "anchor_type": "line",
+            "anchor": "self.jcl.machinefile = self.machinefile",
+            "anchor_ids": [
+                1
+            ],
+            "where": "after",
+            "shift": "auto"
+        },
+        {
+            "patch_name": "model_load",
+            "patch_type": "add",
+            "patch_with_distance": false,
+            "target_file": "./loadskernel/program_flow.py",
+            "patch_file": "./file_handling/model_reusing.py",
+            "anchor_type": "line",
+            "anchor": "model = data_handling.load_hdf5(self.path_output + 'model_' + self.job_name + '.hdf5')",
+            "anchor_ids": "all",
+            "where": "after",
+            "shift": "auto"
+        },
+        {
+            "patch_name": "comment_model_load",
+            "patch_type": "comment",
+            "target_file": "./loadskernel/program_flow.py",
+            "anchor_type": "line",
+            "anchor": "model = data_handling.load_hdf5(self.path_output + 'model_' + self.job_name + '.hdf5')",
+            "anchor_ids": "all"
+        }
+
+    ]
+}
