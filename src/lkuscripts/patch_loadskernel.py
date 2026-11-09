@@ -197,7 +197,6 @@ def main(module_path: Path = None, export: bool = None):
             # Match loop
             # -----------------------------------
             for i, m in enumerate(matches):
-                print(f'id: {i}')
                 if anchor_ids == 'all' or i + 1 in anchor_ids:
                     # Current anchor position
                     idx = matches[i]
@@ -346,5 +345,4 @@ def patcher_terminal():
             print(f'An Error occoured during the path check of \'{args.module_path}\'. {e}.')
             sys.exit(1)
         # Start the main patcher logic
-        print(args.export)
         main(module_path= args.module_path, export= args.export)
