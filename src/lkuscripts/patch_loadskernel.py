@@ -273,6 +273,7 @@ def main(module_path: Path = None, export: bool = None):
                                 elif p['where'] == 'after':
                                     if p['anchor_type'] == 'function' or p['anchor_type'] == "loop":
                                         # Search for end of function (-1 required since it checks the next line not the current one)
+                                        # End is at above the first line with shift less then indent or last row in script
                                         while idx < len(target_lines) - 1:
                                             idx += 1
                                             line = target_lines[idx]
@@ -282,6 +283,13 @@ def main(module_path: Path = None, export: bool = None):
                                             indent = len(line) - len(line.lstrip(' '))
                                             # fewer spaces
                                             if indent <= num_spaces: break
+                                        # search for last row in pack
+                                        while idx > 0:
+                                            print(target_lines[idx - 1].isspace())
+                                            if not target_lines[idx - 1].isspace():
+                                                break
+                                            idx -= 1
+                                        
                                     elif p['anchor_type'] == 'line':
                                         # Go to next row
                                         idx += 1
