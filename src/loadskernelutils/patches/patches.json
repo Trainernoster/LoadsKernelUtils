@@ -1,5 +1,6 @@
 {
     "patches": [
-        "../file_handling/patches.json"
+        "../file_handling/patches.json",
+        "../control_surfaces/patches.json"
     ]
 }

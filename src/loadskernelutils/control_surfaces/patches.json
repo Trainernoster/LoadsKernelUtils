@@ -1,0 +1,32 @@
+{
+    "patches": [
+        {
+            "patch_name": "input_vector_extension_for_cs",
+            "patch_type": "add",
+            "patch_with_distance": false,
+            "target_file": "./loadskernel/trim_conditions.py",
+            "patch_file": "./control_surfaces/input_vector_extension.py",
+            "anchor_type": "line",
+            "anchor": "], dtype=object)",
+            "anchor_ids": [
+                2
+            ],
+            "where": "after",
+            "shift": 8
+        },
+        {
+            "patch_name": "input_derivative_vector_extension_for_cs",
+            "patch_type": "add",
+            "patch_with_distance": false,
+            "target_file": "./loadskernel/trim_conditions.py",
+            "patch_file": "./control_surfaces/input_derivative_vector_extension.py",
+            "anchor_type": "line",
+            "anchor": "], dtype=object)",
+            "anchor_ids": [
+                4
+            ],
+            "where": "after",
+            "shift": 8
+        }
+    ]
+}
