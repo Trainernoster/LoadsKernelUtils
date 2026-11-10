@@ -1,6 +1,7 @@
 {
     "patches": [
         "../file_handling/patches.json",
-        "../control_surfaces/patches.json"
+        "../control_surfaces/patches.json",
+        "../progress_bar/patches.json"
     ]
 }

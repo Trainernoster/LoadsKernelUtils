@@ -1,0 +1,96 @@
+{
+    "patches": [
+        {
+            "patch_name": "add_progress_file",
+            "patch_type": "add_file",
+            "target_dir": "./loadskernel/utils/",
+            "upload_file": "./progress_bar/progress_bar.py"
+        },
+        {
+            "patch_name": "import_progress_bar",
+            "patch_type": "add",
+            "patch_with_distance": false,
+            "target_file": "./loadskernel/solution_sequences.py",
+            "patch_file": "./progress_bar/import_progress_bar.py",
+            "anchor_type": "line",
+            "anchor": "from loadskernel.solution_tools import polynomial_pulse, one_m_cosine_pulse",
+            "anchor_ids": "all",
+            "where": "after",
+            "shift": "auto"
+        },
+        {
+            "patch_name": "setup_progress_logger",
+            "patch_type": "add",
+            "patch_with_distance": false,
+            "target_file": "./loadskernel/solution_sequences.py",
+            "patch_file": "./progress_bar/setup_progress_logger.py",
+            "anchor_type": "line",
+            "anchor": "integrator.set_initial_value(X0, 0.0)",
+            "anchor_ids": "all",
+            "where": "after",
+            "shift": "auto"
+        },
+        {
+            "patch_name": "restart_progress",
+            "patch_type": "add",
+            "patch_with_distance": false,
+            "target_file": "./loadskernel/solution_sequences.py",
+            "patch_file": "./progress_bar/restart_progress.py",
+            "anchor_type": "line",
+            "anchor": "equations.eval_equations(X0, 0.0, modus='sim_full_output')",
+            "anchor_ids": "all",
+            "where": "after",
+            "shift": "auto"
+        },
+        {
+            "patch_name": "progress_update",
+            "patch_type": "add",
+            "patch_with_distance": false,
+            "target_file": "./loadskernel/solution_sequences.py",
+            "patch_file": "./progress_bar/progress_update.py",
+            "anchor_type": "line",
+            "anchor": "t.append(integrator.t)",
+            "anchor_ids": "all",
+            "where": "after",
+            "shift": "auto"
+        },
+        {
+            "patch_name": "restart_progress_update",
+            "patch_type": "add",
+            "patch_with_distance": false,
+            "target_file": "./loadskernel/solution_sequences.py",
+            "patch_file": "./progress_bar/restart_progress_update.py",
+            "anchor_type": "line",
+            "anchor": "response_step = equations.eval_equations(xt[i_step], t[i_step], modus='sim_full_output')",
+            "anchor_ids": "all",
+            "where": "after",
+            "shift": "auto"
+        },
+        {
+            "patch_name": "progress_end",
+            "patch_type": "add",
+            "patch_with_distance": false,
+            "target_file": "./loadskernel/solution_sequences.py",
+            "patch_file": "./progress_bar/progress_end.py",
+            "anchor_type": "loop",
+            "loop_type": "while",
+            "anchor": "integrator.successful() and integrator.t < t_final:",
+            "anchor_ids": "all",
+            "where": "after",
+            "shift": "auto"
+        },
+        {
+            "patch_name": "restart_progress_end",
+            "patch_type": "add",
+            "patch_with_distance": false,
+            "target_file": "./loadskernel/solution_sequences.py",
+            "patch_file": "./progress_bar/progress_end.py",
+            "anchor_type": "loop",
+            "loop_type": "for",
+            "anchor": "i_step in np.arange(0, len(t)):",
+            "anchor_ids": "all",
+            "where": "after",
+            "shift": "auto"
+        }
+    ]
+}
