@@ -178,6 +178,15 @@ def main(module_path: Path = None, export: bool = None):
                             #
                             # Checking mechanis of _ after function name.
                             #
+                        
+                        case 'loop':
+                            # -----------------------------------
+                            # Loop anchor
+                            # -----------------------------------
+                            matches = [
+                                i for i, line in enumerate(target_lines)
+                                if re.search(re.escape(f"{p['loop_type']} {p['anchor']}") + r'\s*$', line)
+                            ]
 
                         case 'line':
                             # -----------------------------------
@@ -262,7 +271,7 @@ def main(module_path: Path = None, export: bool = None):
                                             break
                                         idx -= 1
                                 elif p['where'] == 'after':
-                                    if p['anchor_type'] == 'function':
+                                    if p['anchor_type'] == 'function' or p['anchor_type'] == "loop":
                                         # Search for end of function (-1 required since it checks the next line not the current one)
                                         while idx < len(target_lines) - 1:
                                             idx += 1
