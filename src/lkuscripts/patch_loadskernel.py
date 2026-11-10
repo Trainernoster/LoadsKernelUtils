@@ -1,7 +1,7 @@
 # -----------------------------------
 # Import
 # -----------------------------------
-import json, re, sys, argparse
+import json, re, sys, argparse, shutil
 from pathlib import Path
 from importlib.metadata import version
 from datetime import datetime
@@ -93,7 +93,6 @@ def main(module_path: Path = None, export: bool = None):
     # -----------------------------------
     # Get user input
     # -----------------------------------
-    #target = Path(input('LoadsKernel path: '))
     if module_path == None:
         print('Please specify a local LoadsKernel repository path:')
         print('The path must point exactly on the main folder of the source code!')
@@ -101,7 +100,6 @@ def main(module_path: Path = None, export: bool = None):
 
         target = Path(input('LoadsKernel path: '))
     else:
-        #target = Path('C:\\Users\\Leo\\Documents\\TUM\\HiWi\\LoadsKernelUtils\\src\\lkuscripts')
         target = Path(module_path)
         print(f'The local LoadsKernel repository is located at: {target}')
 
@@ -144,149 +142,168 @@ def main(module_path: Path = None, export: bool = None):
         if 'patch_name' in p:
             print(f"Start patching \"{p["patch_name"]}\"")
             info = None
+
+            # -----------------------------------
+            # Uploading
+            # -----------------------------------
+            if p['patch_type'] == 'add_file':
+                target_directory = target / p['target_dir']
+                upload_file = module / p['upload_file']
+                target_file = target_directory / upload_file.name
+                shutil.copy(upload_file, target_directory)
+                info = 'File upload!'
+
+                # Create report entry
+                performed_patches.append({'id': f'{patch_id}', 'name':p['patch_name'], 'success':True, 'target_file':target_file, 'start_line':'/', 'end_line':'/', 'info':info})
+                
+            # -----------------------------------
+            # Adding sections to source file
+            # -----------------------------------
+            else:
+                # Patch code into sorce file
             
-            # Reading target file
-            target_file = target / p['target_file']
-            target_lines = target_file.read_text().splitlines(keepends=True)
+                # Reading target file
+                target_file = target / p['target_file']
+                target_lines = target_file.read_text().splitlines(keepends=True)
 
-            # Selecting anchor search mechanism
-            if 'anchor_type' in p:
-                match p['anchor_type']:
-                    case 'function':
-                        # -----------------------------------
-                        # Function anchor
-                        # -----------------------------------
-                        # Find the anchor line
-                        matches = [i for i, l in enumerate(target_lines) if re.search(f'def {p['anchor']}', l)]
-                        #
-                        # Checking mechanis of _ after function name.
-                        #
+                # Selecting anchor search mechanism
+                if 'anchor_type' in p:
+                    match p['anchor_type']:
+                        case 'function':
+                            # -----------------------------------
+                            # Function anchor
+                            # -----------------------------------
+                            # Find the anchor line
+                            matches = [i for i, l in enumerate(target_lines) if re.search(f'def {p['anchor']}', l)]
+                            #
+                            # Checking mechanis of _ after function name.
+                            #
 
-                    case 'line':
-                        # -----------------------------------
-                        # Line anchor
-                        # -----------------------------------
-                        # Find the anchor line
-                        matches = [i for i, line in enumerate(target_lines) if line.strip() == p['anchor']]
+                        case 'line':
+                            # -----------------------------------
+                            # Line anchor
+                            # -----------------------------------
+                            # Find the anchor line
+                            matches = [i for i, line in enumerate(target_lines) if line.strip() == p['anchor']]
 
-                        if not matches:
-                            print(f"The \'anchor\':\'{p['anchor']}\' declarated in {p["patch_name"]} was not found in {p['target_file']}. A patch can therefore not be performed!")
-                            performed_patches.append({'id': patch_id, 'name':p['patch_name'], 'success':False, 'target_file':None, 'start_line':None, 'end_line':None, 'info':'Patch anchor not exisiting!'})
+                            if not matches:
+                                print(f"The \'anchor\':\'{p['anchor']}\' declarated in {p["patch_name"]} was not found in {p['target_file']}. A patch can therefore not be performed!")
+                                performed_patches.append({'id': patch_id, 'name':p['patch_name'], 'success':False, 'target_file':None, 'start_line':None, 'end_line':None, 'info':'Patch anchor not exisiting!'})
+                                patch_id += 1
+                                continue
+
+                        case _:
+                            print(f" The \'anchor_type\':\'{p["anchor_type"]}\' declarated in {p["patch_name"]} is not supported. A patch can therefore not be performed!")
+                            performed_patches.append({'id': patch_id, 'name':p['patch_name'], 'success':False, 'target_file':None, 'start_line':None, 'end_line':None, 'info':'Patch type not exisiting!'})
                             patch_id += 1
                             continue
+                else:
+                    print(f" No \'anchor_type\' has been declared for {p["patch_name"]}. A patch can therefore not be performed!")
+                    performed_patches.append({'id': patch_id, 'name':p['patch_name'], 'success':False, 'target_file':None, 'start_line':None, 'end_line':None, 'info':'No patch type decleraded!'})
+                    patch_id += 1
+                    continue
 
-                    case _:
-                        print(f" The \'anchor_type\':\'{p["anchor_type"]}\' declarated in {p["patch_name"]} is not supported. A patch can therefore not be performed!")
-                        performed_patches.append({'id': patch_id, 'name':p['patch_name'], 'success':False, 'target_file':None, 'start_line':None, 'end_line':None, 'info':'Patch type not exisiting!'})
-                        patch_id += 1
-                        continue
-            else:
-                print(f" No \'anchor_type\' has been declared for {p["patch_name"]}. A patch can therefore not be performed!")
-                performed_patches.append({'id': patch_id, 'name':p['patch_name'], 'success':False, 'target_file':None, 'start_line':None, 'end_line':None, 'info':'No patch type decleraded!'})
-                patch_id += 1
-                continue
-
-            # -----------------------------------
-            # Performe patching
-            # -----------------------------------
-            # flush counter for the correct row numbering in the patch report
-            line_start_flush = 0
-            line_end_flush = 0
-            anchor_ids = p['anchor_ids']
-            # -----------------------------------
-            # Match loop
-            # -----------------------------------
-            for i, m in enumerate(matches):
-                if anchor_ids == 'all' or i + 1 in anchor_ids:
-                    # Current anchor position
-                    idx = matches[i]
-                    # Update target lines (required for multi patches)
-                    target_lines = target_file.read_text().splitlines(keepends=True)
-                    # -----------------------------------
-                    # Patch type loop
-                    # -----------------------------------
-                    match p['patch_type']:
-                        case 'add':
-                            # Reading patch file
-                            patch_file = module / p['patch_file']
-                            patch_lines = Path(patch_file).read_text()
-                            # Get anchor shift (required for auto shift)
-                            num_spaces = len(target_lines[idx]) - len(target_lines[idx].lstrip())
-                            # Set auto shift or fix shift size
-                            # Slide-in (required for python syntax)
-                            if p["shift"] == "auto":
-                                spaces = " " * num_spaces
-                            else:
-                                spaces = " " * p["shift"]
-                            # add an emtpy row befor and after the patch
-                            if 'patch_with_distance' not in p or p['patch_with_distance'] == True:
-                                indented = (
-                                    ["\n"]
-                                    + [
-                                    (spaces + line if line.strip() else line) + "\n"
-                                    for line in patch_lines.splitlines()
-                                    ]
-                                    + [ "\n"]
-                                ) 
-                                line_start_flush = 1
-                                line_end_flush = 2
-                            else:
-                                indented = (
-                                    [
-                                    (spaces + line if line.strip() else line) + "\n"
-                                    for line in patch_lines.splitlines()
-                                    ]
-                                )
-                            # Determining correct anchor position for patch, before or after the anchor
-                            if p['where'] == 'before':
-                                # Check if comment on top of the anchor:
-                                while idx > 0:
-                                    if not target_lines[idx - 1].lstrip().startswith("#"): 
-                                        break
-                                    idx -= 1
-                            elif p['where'] == 'after':
-                                if p['anchor_type'] == 'function':
-                                    # Search for end of function (-1 required since it checks the next line not the current one)
-                                    while idx < len(target_lines) - 1:
+                # -----------------------------------
+                # Performe patching
+                # -----------------------------------
+                # flush counter for the correct row numbering in the patch report
+                line_start_flush = 0
+                line_end_flush = 0
+                anchor_ids = p['anchor_ids']
+                # -----------------------------------
+                # Match loop
+                # -----------------------------------
+                for i, m in enumerate(matches):
+                    if anchor_ids == 'all' or i + 1 in anchor_ids:
+                        # Current anchor position
+                        idx = matches[i]
+                        # Update target lines (required for multi patches)
+                        target_lines = target_file.read_text().splitlines(keepends=True)
+                        # -----------------------------------
+                        # Patch type loop
+                        # -----------------------------------
+                        match p['patch_type']:
+                            case 'add':
+                                # Reading patch file
+                                patch_file = module / p['patch_file']
+                                patch_lines = Path(patch_file).read_text()
+                                # Get anchor shift (required for auto shift)
+                                num_spaces = len(target_lines[idx]) - len(target_lines[idx].lstrip())
+                                # Set auto shift or fix shift size
+                                # Slide-in (required for python syntax)
+                                if p["shift"] == "auto":
+                                    spaces = " " * num_spaces
+                                else:
+                                    spaces = " " * p["shift"]
+                                # add an emtpy row befor and after the patch
+                                if 'patch_with_distance' not in p or p['patch_with_distance'] == True:
+                                    indented = (
+                                        ["\n"]
+                                        + [
+                                        (spaces + line if line.strip() else line) + "\n"
+                                        for line in patch_lines.splitlines()
+                                        ]
+                                        + [ "\n"]
+                                    ) 
+                                    line_start_flush = 1
+                                    line_end_flush = 2
+                                else:
+                                    indented = (
+                                        [
+                                        (spaces + line if line.strip() else line) + "\n"
+                                        for line in patch_lines.splitlines()
+                                        ]
+                                    )
+                                # Determining correct anchor position for patch, before or after the anchor
+                                if p['where'] == 'before':
+                                    # Check if comment on top of the anchor:
+                                    while idx > 0:
+                                        if not target_lines[idx - 1].lstrip().startswith("#"): 
+                                            break
+                                        idx -= 1
+                                elif p['where'] == 'after':
+                                    if p['anchor_type'] == 'function':
+                                        # Search for end of function (-1 required since it checks the next line not the current one)
+                                        while idx < len(target_lines) - 1:
+                                            idx += 1
+                                            line = target_lines[idx]
+                                            # only spaces (or empty)
+                                            if line.strip() == '': continue
+                                            # number of leading spaces
+                                            indent = len(line) - len(line.lstrip(' '))
+                                            # fewer spaces
+                                            if indent <= num_spaces: break
+                                    elif p['anchor_type'] == 'line':
+                                        # Go to next row
                                         idx += 1
-                                        line = target_lines[idx]
-                                        # only spaces (or empty)
-                                        if line.strip() == '': continue
-                                        # number of leading spaces
-                                        indent = len(line) - len(line.lstrip(' '))
-                                        # fewer spaces
-                                        if indent <= num_spaces: break
-                                elif p['anchor_type'] == 'line':
-                                    # Go to next row
-                                    idx += 1
 
-                            # Write patche
-                            target_lines[idx:idx] = indented
-                            target_file.write_text("".join(target_lines))
+                                # Write patche
+                                target_lines[idx:idx] = indented
+                                target_file.write_text("".join(target_lines))
 
-                            # After add patch, update numbering of found matches
-                            # such that the new row numbering matches
-                            for j in enumerate(matches):
-                                matches[j[0]] = matches[j[0]] + len(indented)
+                                # After add patch, update numbering of found matches
+                                # such that the new row numbering matches
+                                for j in enumerate(matches):
+                                    matches[j[0]] = matches[j[0]] + len(indented)
 
-                        case 'comment':
-                            line = target_lines[idx]
-                            indent = len(line) - len(line.lstrip())
+                            case 'comment':
+                                line = target_lines[idx]
+                                indent = len(line) - len(line.lstrip())
 
-                            # Write patche
-                            target_lines[idx] = line[:indent] + '# ' + line[indent:]
-                            target_file.write_text("".join(target_lines))
+                                # Write patche
+                                target_lines[idx] = line[:indent] + '# ' + line[indent:]
+                                target_file.write_text("".join(target_lines))
 
-                        case 'delete':
-                            print('delete patch type')
-                            
-                        case _:
-                            print(f'Patch type can not be found')
+                            case 'delete':
+                                print('delete patch type')
+                                
+                            case _:
+                                print(f'Patch type can not be found')
 
-                    # Create report entry
-                    start_line = idx + line_start_flush
-                    end_line = idx + len(patch_lines.splitlines()) + line_end_flush
-                    performed_patches.append({'id': f'{patch_id}.{i + 1}', 'name':p['patch_name'], 'success':True, 'target_file':target_file, 'start_line':start_line, 'end_line':end_line, 'info':info})
+                        # Create report entry
+                        start_line = idx + line_start_flush
+                        end_line = idx + len(patch_lines.splitlines()) + line_end_flush
+                        performed_patches.append({'id': f'{patch_id}.{i + 1}', 'name':p['patch_name'], 'success':True, 'target_file':target_file, 'start_line':start_line, 'end_line':end_line, 'info':info})
             # Next patch
             patch_id += 1
         
