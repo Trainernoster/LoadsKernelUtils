@@ -1,6 +1,6 @@
 
 # Setup individual control surface actuation
-if hasattr(self.jcl.efcs, 'keys'):
+if 'keys' in self.jcl.efcs:
     for i, cs in enumerate(self.jcl.efcs['keys']):
         self.input_derivatives = np.vstack((
             self.input_derivatives,
