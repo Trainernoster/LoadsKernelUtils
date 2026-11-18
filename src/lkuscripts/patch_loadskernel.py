@@ -183,10 +183,12 @@ def main(module_path: Path = None, export: bool = None):
                             # -----------------------------------
                             # Loop anchor
                             # -----------------------------------
+                            print('loop')
                             matches = [
                                 i for i, line in enumerate(target_lines)
                                 if re.search(re.escape(f"{p['loop_type']} {p['anchor']}") + r'\s*$', line)
                             ]
+                            print(matches)
 
                         case 'line':
                             # -----------------------------------
@@ -285,7 +287,6 @@ def main(module_path: Path = None, export: bool = None):
                                             if indent <= num_spaces: break
                                         # search for last row in pack
                                         while idx > 0:
-                                            print(target_lines[idx - 1].isspace())
                                             if not target_lines[idx - 1].isspace():
                                                 break
                                             idx -= 1
@@ -306,6 +307,8 @@ def main(module_path: Path = None, export: bool = None):
                             case 'comment':
                                 line = target_lines[idx]
                                 indent = len(line) - len(line.lstrip())
+                                # Dummy patch_line required for report
+                                patch_lines = '#\n'
 
                                 # Write patche
                                 target_lines[idx] = line[:indent] + '# ' + line[indent:]
@@ -318,9 +321,10 @@ def main(module_path: Path = None, export: bool = None):
                                 print(f'Patch type can not be found')
 
                         # Create report entry
-                        start_line = idx + line_start_flush
+                        #         Anchor id + flush + 1 (row that is written)
+                        start_line = idx + line_start_flush + 1
                         end_line = idx + len(patch_lines.splitlines()) + line_end_flush
-                        performed_patches.append({'id': f'{patch_id}.{i + 1}', 'name':p['patch_name'], 'success':True, 'target_file':target_file, 'start_line':start_line, 'end_line':end_line, 'info':info})
+                        performed_patches.append({'id': f'{patch_id}.{i + 1}', 'name':p['patch_name'], 'success':True, 'target_file':f'{target_file}:{start_line}', 'start_line':start_line, 'end_line':end_line, 'info':info})
             # Next patch
             patch_id += 1
         
