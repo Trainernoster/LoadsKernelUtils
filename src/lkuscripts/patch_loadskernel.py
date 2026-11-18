@@ -183,12 +183,10 @@ def main(module_path: Path = None, export: bool = None):
                             # -----------------------------------
                             # Loop anchor
                             # -----------------------------------
-                            print('loop')
                             matches = [
                                 i for i, line in enumerate(target_lines)
                                 if re.search(re.escape(f"{p['loop_type']} {p['anchor']}") + r'\s*$', line)
                             ]
-                            print(matches)
 
                         case 'line':
                             # -----------------------------------
