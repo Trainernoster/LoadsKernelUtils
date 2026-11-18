@@ -337,6 +337,11 @@ def main(module_path: Path = None, export: bool = None):
                                 target_lines[idx + p['length'] + 1:idx + p['length'] + 1] = comment_block
                                 target_file.write_text("".join(target_lines))
 
+                                # After add comment block, update numbering of found matches
+                                # such that the new row numbering matches
+                                for j in enumerate(matches):
+                                    matches[j[0]] = matches[j[0]] + 2
+
                             case 'delete':
                                 print('delete patch type')
                                 
