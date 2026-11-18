@@ -297,7 +297,7 @@ def main(module_path: Path = None, export: bool = None):
                                         # Go to next row
                                         idx += 1
 
-                                # Write patche
+                                # Write patch
                                 target_lines[idx:idx] = indented
                                 target_file.write_text("".join(target_lines))
 
@@ -312,8 +312,29 @@ def main(module_path: Path = None, export: bool = None):
                                 # Dummy patch_line required for report
                                 patch_lines = '#\n'
 
-                                # Write patche
+                                # Write patch
                                 target_lines[idx] = line[:indent] + '# ' + line[indent:]
+                                target_file.write_text("".join(target_lines))
+
+                            case 'comment_block':
+                                # Set auto shift or fix shift size
+                                num_spaces = len(target_lines[idx]) - len(target_lines[idx].lstrip())
+                                # Slide-in (required for python syntax)
+                                if 'shift' not in p or p["shift"] == "auto":
+                                    spaces = " " * num_spaces
+                                else:
+                                    spaces = " " * p["shift"]
+
+                                # Dummy patch_line required for report
+                                patch_lines = '#\n'
+                                line_end_flush = p['length'] + 1
+                                comment_block = ([spaces + '\'\'\'\n']) 
+
+                                # Write patch
+                                # Comment begin
+                                target_lines[idx:idx] = comment_block
+                                # Comment end
+                                target_lines[idx + p['length'] + 1:idx + p['length'] + 1] = comment_block
                                 target_file.write_text("".join(target_lines))
 
                             case 'delete':
