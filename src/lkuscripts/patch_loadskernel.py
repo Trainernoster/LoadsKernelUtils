@@ -237,6 +237,10 @@ def main(module_path: Path = None, export: bool = None):
                                 patch_file = module / p['patch_file']
                                 patch_lines = Path(patch_file).read_text()
                                 # Get anchor shift (required for auto shift)
+                                # If it should be patched in loop body
+                                if 'loop_type' in p and (p['where'] == 'before_body' or p['where'] == 'after_body'):
+                                    # increase anchor line by one 
+                                    idx += 1
                                 num_spaces = len(target_lines[idx]) - len(target_lines[idx].lstrip())
                                 # Set auto shift or fix shift size
                                 # Slide-in (required for python syntax)
@@ -264,13 +268,13 @@ def main(module_path: Path = None, export: bool = None):
                                         ]
                                     )
                                 # Determining correct anchor position for patch, before or after the anchor
-                                if p['where'] == 'before':
+                                if p['where'] == 'before' or p['where'] == 'before_body':
                                     # Check if comment on top of the anchor:
                                     while idx > 0:
                                         if not target_lines[idx - 1].lstrip().startswith("#"): 
                                             break
                                         idx -= 1
-                                elif p['where'] == 'after':
+                                elif p['where'] == 'after' or p['where'] == 'after_body':
                                     if p['anchor_type'] == 'function' or p['anchor_type'] == "loop":
                                         # Search for end of function (-1 required since it checks the next line not the current one)
                                         # End is at above the first line with shift less then indent or last row in script
